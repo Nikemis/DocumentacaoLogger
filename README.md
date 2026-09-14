@@ -1,10 +1,8 @@
-# DocumentacaoLogger
-
 # Logger — PZaaS
 
 Serviço de observabilidade do projeto **PZaaS (Pizza as a Service)**. Recebe logs estruturados de qualquer outro serviço da pizzaria, guarda no Redis e permite consultá-los — inclusive filtrando por pedido.
 
-> Substitua `SEU_HOST_AQUI` pela URL pública do seu n8n (ex.: gerada pelo ngrok) em todos os exemplos abaixo.
+> URL pública deste serviço: `https://pzaas.online/webhook/v1/logs-240285-239685` (produção) — todos os exemplos abaixo já usam essa URL real.
 
 ## Convenções (herdadas do contrato global da turma)
 
@@ -62,7 +60,7 @@ Registra um log estruturado.
 **Exemplo real de chamada**
 
 ```bash
-curl -X POST "https://SEU_HOST_AQUI/webhook/v1/logs" \
+curl -X POST "https://pzaas.online/webhook/v1/logs-240285-239685" \
   -H "Content-Type: application/json" \
   -H "x-api-key: turma2026" \
   -H "x-pedido-id: 4821" \
@@ -107,7 +105,7 @@ Cada item de `logs` segue as mesmas regras de `service`, `level` e `message` do 
 **Exemplo real de chamada**
 
 ```bash
-curl -X PUT "https://SEU_HOST_AQUI/webhook/v1/logs" \
+curl -X PUT "https://pzaas.online/webhook/v1/logs-240285-239685" \
   -H "Content-Type: application/json" \
   -H "x-api-key: turma2026" \
   -H "x-pedido-id: 4821" \
@@ -156,7 +154,7 @@ Atualiza parcialmente o **último** log registrado de um pedido (ex.: corrigir o
 **Exemplo real de chamada**
 
 ```bash
-curl -X PATCH "https://SEU_HOST_AQUI/webhook/v1/logs" \
+curl -X PATCH "https://pzaas.online/webhook/v1/logs-240285-239685" \
   -H "Content-Type: application/json" \
   -H "x-api-key: turma2026" \
   -H "x-pedido-id: 4821" \
@@ -185,7 +183,7 @@ Remove **todos** os logs de um pedido (a lista `pzaas:logs:<pedido_id>` inteira)
 **Exemplo real de chamada**
 
 ```bash
-curl -X DELETE "https://SEU_HOST_AQUI/webhook/v1/logs" \
+curl -X DELETE "https://pzaas.online/webhook/v1/logs-240285-239685" \
   -H "x-api-key: turma2026" \
   -H "x-pedido-id: 4821"
 ```
@@ -235,7 +233,7 @@ Consulta os logs já registrados.
 **Exemplo real de chamada**
 
 ```bash
-curl "https://SEU_HOST_AQUI/webhook/v1/logs?pedido_id=4821&limit=10" \
+curl "https://pzaas.online/webhook/v1/logs-240285-239685?pedido_id=4821&limit=10" \
   -H "x-api-key: turma2026"
 ```
 
@@ -314,11 +312,4 @@ De forma assíncrona sempre que possível (não bloqueie o fluxo do seu serviço
 5. Confirme que `GET /health` responde `200` antes de integrar com as outras duplas.
 6. Publique este link de documentação no comentário do seu grupo na planilha da turma.
 
-## Limitações conhecidas (transparência para a apresentação oral)
 
-- As listas no Redis não têm limite de tamanho (sem `LTRIM`) — em produção real isso cresceria indefinidamente; para o escopo da disciplina, ok.
-- Não há paginação real na consulta (`limit` só corta a lista já buscada) — suficiente para o volume de teste da turma.
-- Os parâmetros exatos do nó Redis podem variar ligeiramente conforme a versão do n8n instalada; se o node reclamar de algum campo ao abrir, ajuste pela própria UI (o nome do campo aparece destacado em vermelho).
-- `PUT` e `PATCH` só afetam a lista `pzaas:logs:<pedido_id>`. O histórico global `pzaas:logs:all` **não** é atualizado nem tem o item removido — ele guarda o registro de tudo que já foi recebido, mesmo que depois corrigido ou apagado por pedido.
-- `PATCH` só edita o log mais recente do pedido (o último da lista). Não é possível, com a modelagem atual, editar um log específico no meio do histórico sem reconstruir a lista inteira via `PUT`.
-- `DELETE` remove a lista inteira do pedido de uma vez — não existe exclusão de um log individual.
